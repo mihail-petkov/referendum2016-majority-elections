@@ -15,12 +15,6 @@ class Elections
     @all_areas = {}
     @voters_per_areas = Hash.new(0)
     @all_voters = 0
-    self.load_uniq_areas
-    self.calculate_all_people_with_vote_permission
-    self.load_candidates_per_area
-    self.load_votes
-    self.get_voters_per_area
-    self.get_deputies_per_area
   end
 
   def load_uniq_areas
@@ -69,7 +63,7 @@ class Elections
     @all_areas.values
   end
 
-  def get_voters_per_area
+  def load_voters_per_area
     self.sort_voters_per_area
     # @voters_per_areas.each { |area_id, voters| puts "Voteres in #{@all_areas[area_id]}: #{voters}" }
   end
@@ -82,7 +76,7 @@ class Elections
     @all_voters / DEPUTIES
   end
 
-  def get_deputies_per_area
+  def load_deputies_per_area
     self.sort_voters_per_area
     total = 0
     people_per_area = calculate_approximate_area_people
@@ -140,8 +134,17 @@ class Elections
     @deputies.each { |party| puts "#{party[0]} - #{party[1]}" }
   end
 
+  def run
+    self.load_uniq_areas
+    self.calculate_all_people_with_vote_permission
+    self.load_candidates_per_area
+    self.load_votes
+    self.load_voters_per_area
+    self.load_deputies_per_area
+    self.calculate_votes
+  end
+
 end
 
-
 elections = Elections.new
-elections.calculate_votes
+elections.run
