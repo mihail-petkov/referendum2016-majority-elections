@@ -22,7 +22,6 @@ class Elections
       @parties[party[0]] = party[1]
     end
     file.close
-    puts @parties
   end
 
   def calculate_all_people_with_vote_permission
@@ -35,7 +34,6 @@ class Elections
       @all_voters += people_in_section
     end
     file.close
-    puts "Total people: #{@all_voters}"
   end
 
   def calculate_approximate_area_people
