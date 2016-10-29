@@ -8,7 +8,7 @@ class Elections
 
   def initialize
     @voting_areas = []
-    @deputies = {}
+    @deputies = Hash.new(0)
     @deputies_per_area = {}
     @candidates_per_areas = {}
     @votes = {}
@@ -20,7 +20,8 @@ class Elections
   def load_uniq_areas
     file = File.new(SECTIONS, "r")
     while (line = file.gets)
-      @all_areas[line.split(';')[1]] = line.split(';')[2].split('.')[1].strip
+      area = line.split(';')
+      @all_areas[area[1]] = area[2].split('.')[1].strip
     end
     file.close
     # puts "All areas: #{@all_areas.values.size}"
@@ -29,8 +30,9 @@ class Elections
   def calculate_all_people_with_vote_permission
     file = File.new(PROTOCOLS, "r")
     while (line = file.gets)
-      @all_voters += line.split(';')[6].to_i
-      @voters_per_areas[line.split(';')[2]] += line.split(';')[6].to_i
+      protocols = line.split(';')
+      @all_voters += protocols[6].to_i
+      @voters_per_areas[protocols[2]] += protocols[6].to_i
     end
     file.close
     # puts "Voters: #{@all_voters}"
@@ -39,8 +41,9 @@ class Elections
   def load_candidates_per_area
     file = File.new(CANDIDATES, "r")
     while (line = file.gets)
-      @candidates_per_areas[line.split(';')[0]] = {} unless @candidates_per_areas[line.split(';')[0]] 
-      @candidates_per_areas[line.split(';')[0]][line.split(';')[2]] = line.split(';')[3]
+      area = line.split(';')
+      @candidates_per_areas[area[0]] = {} unless @candidates_per_areas[area[0]] 
+      @candidates_per_areas[area[0]][area[2]] = area[3]
     end
     file.close
   end
@@ -50,8 +53,7 @@ class Elections
     while (line = file.gets)
       section = line.split(';')
       @votes[section[1]] = {} unless @votes[section[1]]
-      section_votes = section[2..-1].each_slice(3).to_a
-      section_votes.each do |votes_for_party| 
+      section[2..-1].each_slice(3).to_a.each do |votes_for_party| 
         @votes[section[1]][votes_for_party[0]] = 0 unless @votes[section[1]][votes_for_party[0]]
         @votes[section[1]][votes_for_party[0]] += votes_for_party[1].to_i
       end
@@ -111,22 +113,19 @@ class Elections
   def calculate_votes
     @voting_areas.each do |area|
       if area.size > 1
-        parties = {}
+        parties = Hash.new(0)
         area.each do |area_id|
           votes_for_area = @votes[area_id]
           votes_for_area.each do |party_id, total_votes|
             party_name = @candidates_per_areas[area_id][party_id]
-            parties[party_name] = 0 unless parties[party_name]
             parties[party_name] += total_votes.to_i
           end
         end
         winner_party = parties.sort_by {|_key, value| value }.reverse[0][0]
-        @deputies[winner_party] = 0 unless @deputies[winner_party]
         @deputies[winner_party] += 1
       else
         winner_party_id = @votes[area[0]].sort_by {|_key, value| value }.reverse[0][0]
         winner_party = @candidates_per_areas[area[0]][winner_party_id]
-        @deputies[winner_party] = 0 unless @deputies[winner_party]
         @deputies[winner_party] += @deputies_per_area[area[0]]
       end
     end

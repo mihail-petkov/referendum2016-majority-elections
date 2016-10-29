@@ -67,9 +67,7 @@ class Elections
         sections << section_id
       end
     end
-    if counter > 0 && sections.size > 0
-      @deputies_per_section << sections
-    end
+    @deputies_per_section << sections if counter > 0 && sections.size > 0
   end
 
   def calculate_deputies
