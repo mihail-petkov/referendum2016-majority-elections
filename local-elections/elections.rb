@@ -65,11 +65,6 @@ class Elections
     @all_areas.values
   end
 
-  def load_voters_per_area
-    self.sort_voters_per_area
-    # @voters_per_areas.each { |area_id, voters| puts "Voteres in #{@all_areas[area_id]}: #{voters}" }
-  end
-
   def sort_voters_per_area
     @voters_per_areas = @voters_per_areas.sort_by {|_key, value| value }.reverse.to_h
   end
@@ -138,7 +133,6 @@ class Elections
     self.calculate_all_people_with_vote_permission
     self.load_candidates_per_area
     self.load_votes
-    self.load_voters_per_area
     self.load_deputies_per_area
     self.calculate_votes
   end
